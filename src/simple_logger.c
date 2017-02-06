@@ -36,6 +36,7 @@ void _slog(char *f,int l,char *msg,...)
     vfprintf(stdout,msg,ap);
     fprintf(stdout,"\n");
     va_end(ap);
+    fprintf(stdout,"\n");
     if (__log_file != NULL)
     {
         va_start(ap,msg);
