@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -11,31 +11,66 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\entity.c" />
+    <ClCompile Include="..\include\user_interface.c" />
+    <ClCompile Include="..\src\ai.c" />
+    <ClCompile Include="..\src\camera.c" />
     <ClCompile Include="..\src\gametest3d.c" />
     <ClCompile Include="..\src\graphics3d.c" />
+    <ClCompile Include="..\src\light.c" />
+    <ClCompile Include="..\src\mesh.c" />
+    <ClCompile Include="..\src\model.c" />
+    <ClCompile Include="..\src\player.c" />
+    <ClCompile Include="..\src\resource_manager.c" />
     <ClCompile Include="..\src\shader.c" />
     <ClCompile Include="..\src\simple_logger.c" />
+    <ClCompile Include="particle_spawner.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\ai.h" />
+    <ClInclude Include="..\include\camera.h" />
+    <ClInclude Include="..\include\entity.h" />
     <ClInclude Include="..\include\graphics3d.h" />
+    <ClInclude Include="..\include\light.h" />
+    <ClInclude Include="..\include\particle_spawner.h" />
+    <ClInclude Include="..\include\user_interface.h" />
+    <ClInclude Include="..\include\mesh.h" />
+    <ClInclude Include="..\include\model.h" />
+    <ClInclude Include="..\include\player.h" />
+    <ClInclude Include="..\include\resource_manager.h" />
     <ClInclude Include="..\include\shader.h" />
     <ClInclude Include="..\include\simple_logger.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders\particle_shader_fs.glsl" />
+    <None Include="..\shaders\particle_shader_vs.glsl" />
+    <None Include="..\shaders\phong_shader_fs.glsl" />
+    <None Include="..\shaders\phong_shader_vs.glsl" />
+    <None Include="..\shaders\toon_shader_fs.glsl" />
+    <None Include="..\shaders\user_interface_fs.glsl" />
+    <None Include="..\shaders\user_interface_vs.glsl" />
+    <None Include="..\shaders\toon_shader_vs.glsl" />
+    <None Include="..\shaders\xray_shader_fs.glsl" />
+    <None Include="..\shaders\xray_shader_vs.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C8351047-707B-4D68-A801-6749E9509337}</ProjectGuid>
     <RootNamespace>gametest3d</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -48,20 +83,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Libraries\glew-1.12.0\include;C:\Libraries\SDL2-2.0.3\include;C:\Users\Bo\Desktop\gametest3d\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Libraries\glew-1.12.0\lib\Release\Win32;C:\Libraries\SDL2-2.0.3\lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)\..</OutDir>
-    <IntDir>$(ProjectDir)\..</IntDir>
+    <IncludePath>C:\Users\sharg_000\Documents\IT485\it485_libs\include;C:\Users\sharg_000\Documents\IT485\it485_Project01\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\sharg_000\Documents\IT485\it485_libs\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\..\</OutDir>
+    <IntDir>$(ProjectDir)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;SDL2_image.lib;SDL2_ttf.lib;glew32s.lib;assimp-vc140-mt.lib;jansson_d.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

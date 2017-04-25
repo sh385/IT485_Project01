@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{e9bc2ce7-9f68-4f24-9598-e1ab722a9e11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\simple_logger.c">
@@ -27,6 +30,36 @@
     <ClCompile Include="..\src\gametest3d.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\mesh.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\camera.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\model.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\entity.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\player.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\resource_manager.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\user_interface.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\light.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="particle_spawner.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ai.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\graphics3d.h">
@@ -38,5 +71,67 @@
     <ClInclude Include="..\include\simple_logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\resource_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\user_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\particle_spawner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ai.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders\user_interface_fs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\user_interface_vs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\toon_shader_fs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\toon_shader_vs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\particle_shader_fs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\particle_shader_vs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\xray_shader_fs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\xray_shader_vs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\phong_shader_vs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\phong_shader_fs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

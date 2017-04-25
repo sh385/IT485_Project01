@@ -4,14 +4,38 @@
 
 static SDL_GLContext __graphics3d_gl_context;
 static SDL_Window  * __graphics3d_window = NULL;
-static GLuint        __graphics3d_shader_program;
+static GLuint        toon_shader;
+static GLuint		 phong_shader;
+static GLuint        user_interface_shader;
+static GLuint		 particle_shader;
+static GLuint		xray_shader;
 static Uint32        __graphics3d_frame_delay = 33;
 
 void graphics3d_close();
 
-GLuint graphics3d_get_shader_program()
+GLuint get_toon_shader()
 {
-    return __graphics3d_shader_program;
+    return toon_shader;
+}
+
+GLuint get_phong_shader()
+{
+	return phong_shader;
+}
+
+GLuint get_user_interface_shader()
+{
+	return user_interface_shader;
+}
+
+GLuint get_particle_shader()
+{
+	return particle_shader;
+}
+
+GLuint get_xray_shader()
+{
+	return xray_shader;
 }
 
 void graphics3d_next_frame()
@@ -45,7 +69,11 @@ int graphics3d_init(int sw,int sh,int fullscreen,const char *project,Uint32 fram
                               SDL_WINDOWPOS_UNDEFINED,
                               sw, sh,
                               SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-    
+    if  (__graphics3d_window == NULL)
+	{
+		slog("Fatal:Failed to create sdl window");
+		return -1;
+	}
     
     __graphics3d_gl_context = SDL_GL_CreateContext(__graphics3d_window);
     if (__graphics3d_gl_context == NULL)
@@ -76,16 +104,46 @@ int graphics3d_init(int sw,int sh,int fullscreen,const char *project,Uint32 fram
     }
     
     
-    __graphics3d_shader_program = BuildShaderProgram("shaders/vs1.glsl", "shaders/fs1.glsl");
-    if (__graphics3d_shader_program == -1)
+    toon_shader = BuildShaderProgram("shaders/toon_shader_vs.glsl", "shaders/toon_shader_fs.glsl");
+	phong_shader = BuildShaderProgram("shaders/phong_shader_vs.glsl", "shaders/phong_shader_fs.glsl");
+	user_interface_shader = BuildShaderProgram("shaders/user_interface_vs.glsl", "shaders/user_interface_fs.glsl");
+	particle_shader = BuildShaderProgram("shaders/particle_shader_vs.glsl", "shaders/particle_shader_fs.glsl");
+	xray_shader = BuildShaderProgram("shaders/xray_shader_vs.glsl", "shaders/xray_shader_fs.glsl");
+
+    if (toon_shader == -1)
     {
         return -1;
     }
+
+	if (user_interface_shader == -1)
+	{
+		return -1;
+	}
+
+	if (particle_shader == -1)
+	{
+		return -1;
+	}
+
+	if (xray_shader == -1)
+	{
+		return -1;
+	}
+
+	if (phong_shader == -1)
+	{
+		return -1;
+	}
     
-    slog("Using program %d", __graphics3d_shader_program);
+    //slog("Using program %d", toon_shader_color);
         
     atexit(graphics3d_close);
     return 0;
+}
+
+SDL_Window* graphics3d_get_window()
+{
+	return __graphics3d_window;
 }
 
 void graphics3d_close()

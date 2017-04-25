@@ -39,8 +39,17 @@ int graphics3d_init(int sw,int sh,int fullscreen,const char *project, Uint32 fra
  * @brief get the active shader program index
  * @return 0 on error or the index of the active shader program
  */
-GLuint graphics3d_get_shader_program();
+GLuint get_toon_shader();
 
+GLuint get_phong_shader();
+
+GLuint get_user_interface_shader();
+
+GLuint get_particle_shader();
+
+GLuint get_xray_shader();
+
+SDL_Window* graphics3d_get_window();
 /**
  * @brief advance the frame, taking into account desired frame rate
  */
