@@ -26,12 +26,13 @@ typedef struct
 	GLuint state;
 	NavMesh* navmesh;
 	GLuint pathSize;
+	GLfloat lookDistance;
 }AI;
-AI* createAI(NavMesh* navmesh);
+AI* createAI(NavMesh* navmesh, GLfloat lookDistance);
 NavMesh* createNavmesh(char* filePath);
-NavNode* findPath(AI* ai, Entity* target);
 void updateAI(AI* player);
 void moveAI(AI* player, Entity* ent);
+void follow(AI* ai, glm::vec3 target);
 NavNode getNodeAt(NavMesh* navmesh, glm::vec3 position);
 bool nodeIsLocatedAt(NavNode node, glm::vec3 position);
 NavNode* neighborsOf(NavMesh* navmesh, glm::vec3 nodePosition);

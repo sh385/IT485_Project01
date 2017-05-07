@@ -24,6 +24,6 @@ void setVelocity(Entity* entity, glm::vec3 velocity);
 void moveEntity(Entity* entity, glm::vec3 offset);
 void updateMatrix(Entity* ent);
 void updateCollider(Entity* ent, glm::vec3 velocity);
-bool colliding(Entity* ent, Entity* ent2);
+bool colliding(Collider col, Collider col2);
 void freeEntity(Entity** entity);
 

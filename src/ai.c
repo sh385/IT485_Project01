@@ -5,7 +5,7 @@ NavMesh* createNavmesh(char* filePath)
 {
 	NavMesh* navmesh = (NavMesh*)malloc(sizeof(NavMesh));
 	navmesh->numNodes = 0;
-	//ai->navmesh = navmesh;
+
 	if (!filePath)
 	{
 		slog("No file path provided");
@@ -33,9 +33,9 @@ NavMesh* createNavmesh(char* filePath)
 		{
 			sumX = sumX / 4.0f;
 			sumZ = sumZ / 4.0f;
-			navmesh->nodes[((i + 1) / 4) - 1].position.x = round(sumX);
+			navmesh->nodes[((i + 1) / 4) - 1].position.x = sumX;
 			navmesh->nodes[((i + 1) / 4) - 1].position.y = 0.0f;
-			navmesh->nodes[((i + 1) / 4) - 1].position.z = round(sumZ);
+			navmesh->nodes[((i + 1) / 4) - 1].position.z = sumZ;
 			counter = 0;
 			navmesh->numNodes++;
 			sumX = 0.0f;
@@ -46,72 +46,34 @@ NavMesh* createNavmesh(char* filePath)
 	return navmesh;
 }
 
-AI* createAI(NavMesh* navmesh)
+AI* createAI(NavMesh* navmesh, GLfloat lookDistance)
 {
 	AI* ai = (AI*)malloc(sizeof(AI));
 	ai->navmesh = navmesh;
 	ai->pathSize = 0;
+	ai->lookDistance = lookDistance;
 	return ai;
 }
 
-NavNode* findPath(AI* ai, Entity* target)
+void follow(AI* ai, glm::vec3 target)
 {
-	NavNode currentNode = getNodeAt(ai->navmesh, glm::vec3(0.0f, 0.0f, -10.0f));
-	GLuint openListSize = 1;
-	NavNode* openList = (NavNode*)malloc(sizeof(NavNode)*ai->navmesh->numNodes*8);
-
-	GLuint closedListSize = 0;
-	NavNode* closedList = (NavNode*)malloc(sizeof(NavNode)*ai->navmesh->numNodes*8);
-
-	NavNode* cameFrom = (NavNode*)malloc(sizeof(NavNode)*ai->navmesh->numNodes*8);
-	GLuint cameFromSize = 1;
-	cameFrom[0] = currentNode;
-	cameFrom[0].parent = glm::vec3();
-	cameFrom[0].hScore = glm::length(currentNode.position - target->position);
-	cameFrom[0].fScore = cameFrom[0].hScore;
-	cameFrom[0].gScore = 0.0f;
-	GLfloat tempGscore = 0.0f;
-	openList[openListSize-1] = currentNode;
-	while (openListSize != 0)
+	if (ai->gameObject->position.x > target.x)
 	{
-		currentNode = openList[openListSize - 1];
-		if (nodeIsLocatedAt(currentNode, target->position))
-		{
-			ai->pathSize = closedListSize;
-			return closedList;
-		}
-		openListSize--;
-		closedListSize++;
-		closedList[closedListSize-1] = currentNode;
-		NavNode* neighbors = neighborsOf(ai->navmesh, currentNode.position);
-		for (GLuint i = 0; i < 8; i++)
-		{
-			printf("%f\n", neighbors[i].position.x);
-			if (neighbors[i].position == glm::vec3())
-			{
-				continue;
-			}
-			else
-			{
-				tempGscore = cameFrom[0].gScore + glm::length(currentNode.position - neighbors[i].position);
-				if (!insideOf(neighbors[i], openList, openListSize))
-				{
-					openListSize++;
-					openList[openListSize - 1] = neighbors[i];
-				}
-				else if (tempGscore >= glm::length(currentNode.position - neighbors[i].position))
-				{
-					continue;
-				}
-				cameFromSize++;
-				neighbors[i].parent = currentNode.position;
-				neighbors[i].gScore = tempGscore;
-				neighbors[i].fScore = tempGscore + glm::length(neighbors[i].position - target->position);
-				cameFrom[cameFromSize - 1] = neighbors[i];
-			}
-		}
+		moveEntity(ai->gameObject, glm::vec3(-0.06f, 0.0f, 0.0f));
 	}
-	return closedList;
+	else if (ai->gameObject->position.x < target.x)
+	{
+		moveEntity(ai->gameObject, glm::vec3(0.06, 0.0f, 0.0f));
+	}
+
+	if (ai->gameObject->position.z > target.z)
+	{
+		moveEntity(ai->gameObject, glm::vec3(0.0f, 0.0f, -0.06f));
+	}
+	else if (ai->gameObject->position.z < target.z)
+	{
+		moveEntity(ai->gameObject, glm::vec3(0.0f, 0.0f, 0.06f));
+	}
 }
 
 NavNode getNodeAt(NavMesh* navmesh, glm::vec3 position)
@@ -141,7 +103,7 @@ bool nodeIsLocatedAt(NavNode node, glm::vec3 position)
 	glm::vec3 temp = glm::vec3(position.x, 0.0f, position.z);
 	glm::vec3 temp2 = glm::vec3(node.position.x, 0.0f, node.position.z);
 
-	if (glm::length(temp2 - temp) <= 5.0f)
+	if (glm::length(temp2 - temp) <= 1.0f)
 	{
 		return true;
 	}
@@ -157,14 +119,15 @@ NavNode* neighborsOf(NavMesh* navmesh, glm::vec3 nodePosition)
 	GLuint counter = 0;
 	for (GLuint i = 0; i < navmesh->numNodes; i++)
 	{
-		if (counter < 7)
+		if (counter < 8)
 		{
-			if (glm::length(navmesh->nodes[i].position - nodePosition) <= 1.0f)
+			if (glm::length(navmesh->nodes[i].position - nodePosition) <= 2.7f && navmesh->nodes[i].position != nodePosition)
 			{
-				nodes[i].position = navmesh->nodes[i].position;
+				nodes[counter].position = navmesh->nodes[i].position;
+				counter++;
 			}
 		}
-		counter++;
+		
 	}
 	return nodes;
 }

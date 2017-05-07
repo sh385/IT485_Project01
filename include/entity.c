@@ -66,11 +66,11 @@ void touch(Entity* ent, Entity* ent2)
 	}*/
 }
 
-bool colliding(Entity* ent, Entity* ent2)
+bool colliding(Collider col, Collider col2)
 {
-	return (ent->model->collider.minX < ent2->model->collider.maxX && ent->model->collider.maxX > ent2->model->collider.minX &&
-		ent->model->collider.minY < ent2->model->collider.maxY && ent->model->collider.maxY > ent2->model->collider.minY &&
-		ent->model->collider.minZ < ent2->model->collider.maxZ && ent->model->collider.maxZ > ent2->model->collider.minZ);
+	return (col.minX < col2.maxX && col.maxX > col2.minX &&
+		col.minY < col2.maxY && col.maxY > col2.minY &&
+		col.minZ < col2.maxZ && col.maxZ > col2.minZ);
 }
 
 void updateCollider(Entity* ent, glm::vec3 velocity)
@@ -92,92 +92,10 @@ void updateMatrix(Entity* ent)
 	ent->modelMatrix = glm::translate(glm::mat4(), ent->position);
 }
 
-void movePlayer(Entity* ent, Entity* ent2)
-{
-	if (ent->velocity.y != 0)
-	{
-		ent->position.y += ent->velocity.y;
-		updateCollider(ent, glm::vec3(0.0f, ent->velocity.y, 0.0f));
-		updateMatrix(ent);
-		if (colliding(ent, ent2))
-		{
-			GLfloat push = 0.0f;
-			if (ent->velocity.y > 0 && ent->position.y < ent2->position.y)
-			{
-				push = (ent2->model->collider.minY - ent->model->collider.maxY);
-				ent->position.y += push;
-			}
-			else if (ent->velocity.y < 0 && ent->position.y > ent2->position.y)
-			{
-				push = (ent2->model->collider.maxY - ent->model->collider.minY);
-				ent->position.y += push;
-				ent->onGround = true;
-			}
-			updateCollider(ent, glm::vec3(0.0f, push, 0.0f));
-			updateMatrix(ent);
-			ent->velocity.y = 0.0f;
-		}
-	}
-	if (ent->velocity.x != 0)
-	{
-		ent->position.x += ent->velocity.x;
-		updateCollider(ent, glm::vec3(ent->velocity.x, 0.0f, 0.0f));
-		updateMatrix(ent);
-		if (colliding(ent, ent2))
-		{
-			GLfloat push = 0.0f;
-			if (ent->velocity.x > 0 && ent->position.x < ent2->position.x)
-			{
-				push = (ent2->model->collider.minX - ent->model->collider.maxX);
-				ent->position.x += push;
-				ent->velocity.x = 0.0f;
-			}
-			else if (ent->velocity.x < 0 && ent->position.x > ent2->position.x)
-			{
-				push = (ent2->model->collider.maxX - ent->model->collider.minX);
-				ent->position.x += push;
-				ent->velocity.x = 0.0f;
-			}
-			updateCollider(ent, glm::vec3(push, 0.0f, 0.0f));
-			updateMatrix(ent);
-			ent->velocity.x = 0;
-		}
-	}
-	if (ent->velocity.z != 0)
-	{
-		ent->position.z += ent->velocity.z;
-		updateCollider(ent, glm::vec3(0.0f, 0.0f, ent->velocity.z));
-		updateMatrix(ent);
-		if (colliding(ent, ent2))
-		{
-			GLfloat push = 0.0f;
-			if (ent->velocity.z > 0 && ent->position.z < ent2->position.z)
-			{
-				push = (ent2->model->collider.minZ - ent->model->collider.maxZ);
-				ent->position.z += push;
-				ent->velocity.z = 0.0f;
-			}
-			else if (ent->velocity.z < 0 && ent->position.z > ent2->position.z)
-			{
-				push = (ent2->model->collider.maxZ - ent->model->collider.minZ);
-				ent->position.z += push;
-				ent->velocity.z = 0.0f;
-			}
-			updateCollider(ent, glm::vec3(0.0f, 0.0f, push));
-			updateMatrix(ent);
-			ent->velocity.z = 0;
-		}
-	}
-}
-
 void moveEntity(Entity* entity, glm::vec3 offset)
 {
-	entity->model->collider.minX += offset.x;
-	entity->model->collider.minY += offset.y;
-	entity->model->collider.minZ += offset.z;
-	entity->model->collider.maxX += offset.x;
-	entity->model->collider.maxY += offset.y;
-	entity->model->collider.maxZ += offset.z;
+	
+
 	entity->position.x += offset.x;
 	entity->position.y += offset.y;
 	entity->position.z += offset.z;
@@ -186,13 +104,19 @@ void moveEntity(Entity* entity, glm::vec3 offset)
 	entity->model->collider.y = entity->position.y;
 	entity->model->collider.z = entity->position.z;
 
+	entity->model->collider.minX += offset.x;
+	entity->model->collider.minY += offset.y;
+	entity->model->collider.minZ += offset.z;
+	entity->model->collider.maxX += offset.x;
+	entity->model->collider.maxY += offset.y;
+	entity->model->collider.maxZ += offset.z;
+
 	entity->modelMatrix = glm::translate(glm::mat4(), entity->position);
 }
 
 void setVelocity(Entity* entity, glm::vec3 velocity)
 {
 	entity->velocity = velocity;
-
 }
 
 Entity* createEntity()

@@ -3,6 +3,13 @@ Player* createPlayer()
 {
 	Player* player = (Player*)malloc(sizeof(Player));
 	player->gravity = 0.01f;
+	player->attackBox = createEntity();
+	player->attackBox->name = "AttackBox";
+	player->attackBox->model = loadModel("C:/Users/sharg_000/Documents/3D_Modeling_Projects/monkey.obj");
+	loadTexture(&player->attackBox->model->meshes[0], "C:/Users/sharg_000/Documents/blueTexture.png");
+	player->attackBoxActive = false;
+	player->attackBoxTime = 0;
+	player->hidden = true;
 	return player;
 }
 
@@ -39,33 +46,56 @@ void updatePlayer(Player* player)
 	{
 		player->gameObject->velocity.x = 0.0f;
 	}
+
+	if (keystate[SDL_SCANCODE_H] && !player->attackBoxActive)
+	{
+		player->attackBoxActive = true;
+	}
+	
+	if (player->attackBoxActive == true)
+	{
+		glm::vec3 prevPosition = player->attackBox->position;
+		glm::vec3 dir = glm::vec3(player->gameObject->forward.x, 0.0f, player->gameObject->forward.z);
+		glm::vec3 newPosition = player->gameObject->position + (glm::normalize(dir) * 1.5f);
+		moveEntity(player->attackBox, newPosition - prevPosition);
+
+		player->attackBoxTime++;
+		if (player->attackBoxTime >= 20)
+		{
+			player->attackBoxTime = 0;
+			player->attackBoxActive = false;
+		}
+	}
+
 	player->gameObject->velocity.y -= player->gravity;
+	if (player->gameObject->velocity.y <= -0.5f)
+	{
+		player->gameObject->velocity.y = -0.5f;
+	}
 }
 
 void movePlayer(Player* player, Entity* ent)
 {
-
+	
 	if (player->gameObject->velocity.y != 0)
 	{
-		player->gameObject->position.y += player->gameObject->velocity.y;
-		updateCollider(player->gameObject, glm::vec3(0.0f, player->gameObject->velocity.y, 0.0f));
-		updateMatrix(player->gameObject);
-		if (colliding(player->gameObject, ent))
+		glm::vec3 vel = glm::vec3(0.0f, player->gameObject->velocity.y, 0.0f);
+		moveEntity(player->gameObject, vel);
+		if (colliding(player->gameObject->model->collider, ent->model->collider))
 		{
 			GLfloat push = 0.0f;
 			if (player->gameObject->velocity.y > 0 && player->gameObject->position.y < ent->position.y)
 			{
 				push = (ent->model->collider.minY - player->gameObject->model->collider.maxY);
-				player->gameObject->position.y += push;
 			}
 			else if (player->gameObject->velocity.y < 0 && player->gameObject->position.y > ent->position.y)
 			{
+				
 				push = (ent->model->collider.maxY - player->gameObject->model->collider.minY);
-				player->gameObject->position.y += push;
 				player->gameObject->onGround = true;
 			}
-			updateCollider(player->gameObject, glm::vec3(0.0f, push, 0.0f));
-			updateMatrix(player->gameObject);
+			glm::vec3 pushVector = glm::vec3(0.0f, push, 0.0f);
+			moveEntity(player->gameObject, pushVector);
 			player->gameObject->velocity.y = 0.0f;
 		}
 	}
@@ -74,22 +104,18 @@ void movePlayer(Player* player, Entity* ent)
 		if (player->gameObject->velocity.x != 0)
 		{
 			bool xCollision = false;
-			player->gameObject->position.x += player->gameObject->right.x * player->gameObject->velocity.x;
-			player->gameObject->position.z += player->gameObject->right.z * player->gameObject->velocity.x;
-			updateCollider(player->gameObject, glm::vec3(player->gameObject->right.x * player->gameObject->velocity.x,
-				0.0f, player->gameObject->right.z * player->gameObject->velocity.x));
-			updateMatrix(player->gameObject);
+			glm::vec3 vel = glm::vec3(player->gameObject->right.x * player->gameObject->velocity.x,
+				0.0f, player->gameObject->right.z * player->gameObject->velocity.x);
+			moveEntity(player->gameObject, vel);
 
 
-			while (colliding(player->gameObject, ent))
+			while (colliding(player->gameObject->model->collider, ent->model->collider))
 			{
 				xCollision = true;
 				glm::vec3 temp = glm::vec3(player->gameObject->position.x, 0.0f, player->gameObject->position.z);
 				glm::vec3 temp2 = glm::vec3(ent->position.x, 0.0f, ent->position.z);
 				glm::vec3 push = glm::normalize(temp - temp2)*glm::abs(player->gameObject->velocity.x);
-				player->gameObject->position += push;
-				updateCollider(player->gameObject, push);
-				updateMatrix(player->gameObject);
+				moveEntity(player->gameObject, push);
 			}
 
 			if (xCollision)
@@ -100,21 +126,17 @@ void movePlayer(Player* player, Entity* ent)
 		if (player->gameObject->velocity.z != 0)
 		{
 			bool zCollision = false;
-			player->gameObject->position.x += player->gameObject->forward.x * player->gameObject->velocity.z;
-			player->gameObject->position.z += player->gameObject->forward.z * player->gameObject->velocity.z;
-			updateCollider(player->gameObject, glm::vec3(player->gameObject->forward.x * player->gameObject->velocity.z,
-				0.0f, player->gameObject->forward.z * player->gameObject->velocity.z));
-			updateMatrix(player->gameObject);
+			glm::vec3 vel = glm::vec3(player->gameObject->forward.x * player->gameObject->velocity.z,
+				0.0f, player->gameObject->forward.z * player->gameObject->velocity.z);
+			moveEntity(player->gameObject, vel);
 
-			while (colliding(player->gameObject, ent))
+			while (colliding(player->gameObject->model->collider, ent->model->collider))
 			{
 				zCollision = true;
 				glm::vec3 temp = glm::vec3(player->gameObject->position.x, 0.0f, player->gameObject->position.z);
 				glm::vec3 temp2 = glm::vec3(ent->position.x, 0.0f, ent->position.z);
 				glm::vec3 push = glm::normalize(temp - temp2)*glm::abs(player->gameObject->velocity.z);
-				player->gameObject->position += push;
-				updateCollider(player->gameObject, push);
-				updateMatrix(player->gameObject);
+				moveEntity(player->gameObject, push);
 			}
 
 			if (zCollision)

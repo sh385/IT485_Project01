@@ -7,6 +7,10 @@ typedef struct
 	GLfloat gravity;
 	GLfloat x;
 	GLfloat z;
+	Entity* attackBox;
+	bool attackBoxActive;
+	GLint attackBoxTime;
+	bool hidden;
 }Player;
 
 Player* createPlayer();

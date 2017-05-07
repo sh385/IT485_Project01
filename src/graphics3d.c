@@ -6,6 +6,7 @@ static SDL_GLContext __graphics3d_gl_context;
 static SDL_Window  * __graphics3d_window = NULL;
 static GLuint        toon_shader;
 static GLuint		 phong_shader;
+static GLuint		 post_process_shader;
 static GLuint        user_interface_shader;
 static GLuint		 particle_shader;
 static GLuint		xray_shader;
@@ -36,6 +37,11 @@ GLuint get_particle_shader()
 GLuint get_xray_shader()
 {
 	return xray_shader;
+}
+
+GLuint get_post_process_shader()
+{
+	return post_process_shader;
 }
 
 void graphics3d_next_frame()
@@ -106,10 +112,15 @@ int graphics3d_init(int sw,int sh,int fullscreen,const char *project,Uint32 fram
     
     toon_shader = BuildShaderProgram("shaders/toon_shader_vs.glsl", "shaders/toon_shader_fs.glsl");
 	phong_shader = BuildShaderProgram("shaders/phong_shader_vs.glsl", "shaders/phong_shader_fs.glsl");
+	post_process_shader = BuildShaderProgram("shaders/post_process_vs.glsl", "shaders/post_process_fs.glsl");
 	user_interface_shader = BuildShaderProgram("shaders/user_interface_vs.glsl", "shaders/user_interface_fs.glsl");
 	particle_shader = BuildShaderProgram("shaders/particle_shader_vs.glsl", "shaders/particle_shader_fs.glsl");
 	xray_shader = BuildShaderProgram("shaders/xray_shader_vs.glsl", "shaders/xray_shader_fs.glsl");
 
+	if (post_process_shader == -1)
+	{
+		return -1;
+	}
     if (toon_shader == -1)
     {
         return -1;

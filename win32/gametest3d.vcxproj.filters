@@ -133,5 +133,11 @@
     <None Include="..\shaders\phong_shader_fs.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\shaders\post_process_vs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\shaders\post_process_fs.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

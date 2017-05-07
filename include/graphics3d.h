@@ -43,6 +43,8 @@ GLuint get_toon_shader();
 
 GLuint get_phong_shader();
 
+GLuint get_post_process_shader();
+
 GLuint get_user_interface_shader();
 
 GLuint get_particle_shader();

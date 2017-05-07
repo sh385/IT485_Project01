@@ -1,5 +1,6 @@
 #pragma once
 #include <stdio.h>
+#include <SDL.h>
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -11,30 +12,35 @@ typedef struct
 
 typedef struct
 {
-	UIVertex* vertices;
-	GLuint* indices;
-	GLuint numVertices;
-	GLuint numIndices;
 	glm::vec2 position;
 	GLuint width;
 	GLuint height;
-	GLuint vao, vbo, ebo;
 	char* text;
 	glm::vec4 textColor;
-}Icon;
+	bool isButton;
+	bool isHighlighted;
+}UIElement;
 
 typedef struct
 {
-	Icon* icons;
-	GLuint numIcons;
-}HUD;
+	UIVertex* vertices;
+	GLuint* indices;
+	GLuint numVertices;
+	GLuint vao, vbo, ebo;
+	UIElement* uiElements;
+	GLuint numElements;
+	GLuint numButtons;
+	GLint mouseX;
+	GLint mouseY;
+}UICanvas;
 
-HUD* createHUD();
-void initHUD(HUD* hud);
-void setText(Icon* icon, char* text);
-void setTextColor(Icon* icon, glm::vec4 color);
-void updateHUD(HUD* hud);
-void drawHUD(HUD* hud);
-void addHUDIcon(HUD* hud, Icon* icon);
-void drawIcon(Icon* icon);
-Icon* createIcon(GLuint width, GLuint height, glm::vec2 position);
+UICanvas* createUI();
+bool contains(UIElement uiElement, glm::vec2 position);
+void initUI(UICanvas* canvas);
+void setText(UIElement* uiElement, char* text);
+void setTextColor(UIElement* uiElement, glm::vec4 color);
+void updateUI(UICanvas* canvas);
+void drawUI(UICanvas* canvas);
+void addUIElement(UICanvas* canvas, UIElement* uiElement);
+void drawUI(UICanvas* hud);
+UIElement* createUIElement(GLuint width, GLuint height, glm::vec2 position, bool isButton);
