@@ -34,14 +34,11 @@
 
 int main(int argc, char *argv[])
 {
-	GLuint state = 1; //Main menu
-	NavMesh* navmesh = createNavmesh("C:/Users/sharg_000/Documents/3D_Modeling_Projects/navMesh.obj");	
-
-	ParticleSpawner* particleSpawner = createParticles();
+	GLuint state = 2; //Main menu
+	NavMesh* navmesh = createNavmesh("C:/Users/sharg_000/Documents/3D_Modeling_Projects/navMesh.obj");
 
 	ResourceManager* manager = createScene();
 
-	bool updateParts = false;
 	bool flyMode = false;
 	GLfloat flyPressTime = 0.0f;
 
@@ -74,46 +71,12 @@ int main(int argc, char *argv[])
 	createFramebuffer(manager);
 
 	loadScene(manager, "C:/Users/sharg_000/Documents/IT485_3DGameLevel.txt");
-	
-	AI* ai = createAI(navmesh, 10.0f);
-	ai->gameObject = createEntity();
-	ai->gameObject->model = loadModel("C:/Users/sharg_000/Documents/3D_Modeling_Projects/cubeTest.obj");
-	loadTexture(&ai->gameObject->model->meshes[0], "C:/Users/sharg_000/Documents/blueTexture.png");
-	moveEntity(ai->gameObject, glm::vec3(0.0f, -2.5f, 0.0f));
-	ai->gameObject->name = "AI";
-	addEntity(manager, ai->gameObject);
 
-	//follow(ai, manager->player->gameObject->position);
-	//findPath(ai, manager->player->gameObject);
-	/*for (GLuint i = 0; i < 10; i++)
-	{
-		Entity* node = createEntity();
-		node->model = loadModel("C:/Users/sharg_000/Documents/3D_Modeling_Projects/cubeTest.obj");
-		loadTexture(&node->model->meshes[0], "C:/Users/sharg_000/Documents/blueTexture.png");
-		moveEntity(node, glm::vec3(path[i].position.x, path[i].position.y, path[i].position.z));
-		addEntity(manager, node);
-	}*/
-	/*Entity* node = createEntity();
-	node->model = loadModel("C:/Users/sharg_000/Documents/3D_Modeling_Projects/cubeTest.obj");
-	loadTexture(&node->model->meshes[0], "C:/Users/sharg_000/Documents/blueTexture.png");
-	moveEntity(node, glm::vec3(navmesh->nodes[0].position.x, navmesh->nodes[0].position.y, navmesh->nodes[0].position.z));
-	addEntity(manager, node);
-
-	NavNode* neighbors = neighborsOf(navmesh, node->position);
-	for (GLuint i = 0; i < 8; i++)
-	{
-		Entity* node = createEntity();
-		node->model = loadModel("C:/Users/sharg_000/Documents/3D_Modeling_Projects/cubeTest.obj");
-		loadTexture(&node->model->meshes[0], "C:/Users/sharg_000/Documents/blueTexture.png");
-		moveEntity(node, glm::vec3(neighbors[i].position.x, neighbors[i].position.y, neighbors[i].position.z));
-		addEntity(manager, node);
-	}*/
 	initScene(manager);
-	initParticles(particleSpawner);
 
 	UICanvas* hud = createUI();
 	UIElement* icon = createUIElement(200, 20, glm::vec2(80.0f, 10.0f), false);
-	setText(icon, "Blah");
+	setText(icon, "");
 	setTextColor(icon, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 	addUIElement(hud, icon);
 
@@ -152,7 +115,11 @@ int main(int argc, char *argv[])
 
 	while (bGameLoopRunning)
 	{
-		SDL_SetRelativeMouseMode(SDL_TRUE);
+		if (state == 1)
+		{
+			SDL_SetRelativeMouseMode(SDL_TRUE);
+		}
+
 		Uint8 mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
 		Uint8 mousePositions = SDL_GetMouseState(&mousePosX, &mousePosY);
 
@@ -162,7 +129,7 @@ int main(int argc, char *argv[])
 		}
 		else if (mainMenu->uiElements[1].isHighlighted == true && (SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState))
 		{
-			
+
 		}
 		else if (mainMenu->uiElements[2].isHighlighted == true && (SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState))
 		{
@@ -175,26 +142,20 @@ int main(int argc, char *argv[])
 
 		//updateUI(hud);
 		updateUI(mainMenu);
-		if (glm::length(manager->player->gameObject->position - ai->gameObject->position) <= 10.0f
-			&& manager->player->hidden == false)
-		{
-			follow(ai, manager->player->gameObject->position);
-		}
+
 		if (state == 1)
 		{
 			updateScene(manager);
-			if (updateParts)
+			if (manager->player->gameObject->health > 0)
 			{
-				follow(particleSpawner, manager->entityList[0]->position);
+				hud->uiElements[0].width = manager->player->gameObject->health;
 			}
-
+			else
+			{
+				hud->uiElements[0].width = 0;
+			}
 			//Rotate camera using mouse
 			rotateCamera(camera, mouseX*0.2f, mouseY*-0.2f);
-
-			if (keystate[SDL_SCANCODE_L])
-			{
-				updateParts = true;
-			}
 
 			const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 
@@ -213,6 +174,7 @@ int main(int argc, char *argv[])
 			}
 			if (flyMode)
 			{
+
 				if (keystate[SDL_SCANCODE_W]) //Move camera forward if the W key is pressed
 				{
 					moveCameraForward(camera, 1.0f);
@@ -230,12 +192,14 @@ int main(int argc, char *argv[])
 				{
 					moveCameraRight(camera, 1.0f);
 				}
+
 			}
 			else
 			{
 				manager->player->gameObject->forward = camera->forward;
 				manager->player->gameObject->right = camera->right;
-				camera->position = manager->player->gameObject->position;
+				camera->position = glm::vec3(manager->player->gameObject->position.x, 
+					manager->player->gameObject->position.y + 1.5f, manager->player->gameObject->position.z);
 			}
 			//manager->player->gameObject->forward = camera->forward;
 			//manager->player->gameObject->right = camera->right;
@@ -302,6 +266,24 @@ int main(int argc, char *argv[])
 				lightIntensities[i] = manager->lights[i]->intensity;
 				lightDirections[i] = manager->lights[i]->direction;
 				lightRanges[i] = manager->lights[i]->range;
+			}
+
+			if (manager->player->gameObject->health <= 0)
+			{
+				UICanvas* loseScreen = createUI();
+				UIElement* lost = createUIElement(0, 0, glm::vec2(400.0f, 50.0f), false);
+				setText(lost, "You Lose!");
+				setTextColor(lost, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+				addUIElement(loseScreen, lost);
+			}
+
+			if (manager->numEnemies <= 0)
+			{
+				UICanvas* winScreen = createUI();
+				UIElement* win = createUIElement(0, 0, glm::vec2(400.0f, 50.0f), false);
+				setText(win, "You Win!");
+				setTextColor(win, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+				addUIElement(winScreen, win);
 			}
 			//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 			//glClear(GL_COLOR_BUFFER_BIT);
@@ -394,26 +376,24 @@ int main(int argc, char *argv[])
 				renderScene(manager);
 			}
 
-			if (updateParts)
-			{
-				//Particle Shader
-				glUseProgram(get_particle_shader());
-				uniCam = glGetUniformLocation(get_particle_shader(), "camUp");
-				glUniform3f(uniCam, camera->up.x, camera->up.y, camera->up.z);
+			//if (manager->numSpawners > 0)
+			//{
+			//	//Particle Shader
+			//	glUseProgram(get_particle_shader());
+			//	uniCam = glGetUniformLocation(get_particle_shader(), "camUp");
+			//	glUniform3f(uniCam, camera->up.x, camera->up.y, camera->up.z);
 
-				uniCam = glGetUniformLocation(get_particle_shader(), "camPos");
-				glUniform3f(uniCam, camera->position.x, camera->position.y, camera->position.z);
+			//	uniCam = glGetUniformLocation(get_particle_shader(), "camPos");
+			//	glUniform3f(uniCam, camera->position.x, camera->position.y, camera->position.z);
 
-				view = glm::lookAt(camera->position, camera->position + camera->forward, camera->worldUp);
-				uniView = glGetUniformLocation(get_particle_shader(), "view");
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+			//	view = glm::lookAt(camera->position, camera->position + camera->forward, camera->worldUp);
+			//	uniView = glGetUniformLocation(get_particle_shader(), "view");
+			//	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 
-				proj = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, camera->nearPlane, camera->farPlane);
-				uniProj = glGetUniformLocation(get_particle_shader(), "proj");
-				glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
-
-				drawParticles(particleSpawner);
-			}
+			//	proj = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, camera->nearPlane, camera->farPlane);
+			//	uniProj = glGetUniformLocation(get_particle_shader(), "proj");
+			//	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+			//}
 
 			//X-Ray Shader
 			if (xrayMode)
@@ -454,6 +434,17 @@ int main(int argc, char *argv[])
 
 		if (state == 1)
 		{
+			glUseProgram(get_user_interface_shader());
+			view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), camera->worldUp);
+			uniView = glGetUniformLocation(get_user_interface_shader(), "view");
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+
+			uniProj = glGetUniformLocation(get_user_interface_shader(), "ortho");
+			glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(orthoProj));
+
+			//drawUI(hud);
+			drawUI(hud);
+
 			if (toonMode)
 			{
 				glBindFramebuffer(GL_FRAMEBUFFER, manager->fbo);
@@ -499,8 +490,10 @@ int main(int argc, char *argv[])
 
 		/* drawing code above here! */
 		graphics3d_next_frame();
-
-		SDL_WarpMouseInWindow(graphics3d_get_window(), width / 2, height / 2);
+		if (state == 1)
+		{
+			SDL_WarpMouseInWindow(graphics3d_get_window(), width / 2, height / 2);
+		}
 		SDL_PumpEvents();
 	}
 	return 0;

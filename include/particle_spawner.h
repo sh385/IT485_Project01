@@ -20,7 +20,7 @@ typedef struct
 	GLuint* indices;
 }ParticleSpawner;
 
-ParticleSpawner* createParticles();
+ParticleSpawner* createParticles(glm::vec3 position);
 void initParticles(ParticleSpawner* spawner);
 void updateParticles(ParticleSpawner* spawner);
 void drawParticles(ParticleSpawner* spawner);

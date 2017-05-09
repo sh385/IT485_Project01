@@ -1,10 +1,10 @@
 #include "particle_spawner.h"
 
-ParticleSpawner* createParticles()
+ParticleSpawner* createParticles(glm::vec3 position)
 {
 	ParticleSpawner* spawner = (ParticleSpawner*)malloc(sizeof(ParticleSpawner));
-	spawner->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	spawner->numParticles = 1000;
+	spawner->position = position;
+	spawner->numParticles = 100;
 	spawner->numIndices = 6;
 	spawner->indices = (GLuint*)malloc(sizeof(GLuint)*6);
 	spawner->indices[0] = 0;
@@ -27,7 +27,7 @@ void initParticles(ParticleSpawner* spawner)
 		GLfloat size = 0.05f;
 		spawner->particles[i].size = size;
 		spawner->particles[i].timeToLive = (rand() % 60) + 1;
-		spawner->particles[i].velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+		spawner->particles[i].velocity = glm::vec3((rand()*-0.000001f) + (rand()*0.000001f), (rand()*-0.000001f) + (rand()*0.000001f), (rand()*-0.000001f) + (rand()*0.000001f));
 		spawner->particles[i].position = spawner->position;
 		spawner->vertices[temp] = glm::vec3(spawner->particles[i].position.x - size, spawner->particles[i].position.y + size, 0.0f);
 		spawner->vertices[temp + 1] = glm::vec3(spawner->particles[i].position.x + size, spawner->particles[i].position.y + size, 0.0f);
@@ -64,7 +64,10 @@ void follow(ParticleSpawner* spawner, glm::vec3 target)
 
 void updateParticles(ParticleSpawner* spawner)
 {
-	
+	for (GLuint i = 0; i < spawner->numParticles; i++)
+	{
+		spawner->particles[i].modelMatrix = glm::translate(spawner->particles[i].modelMatrix, spawner->particles[i].position + spawner->particles[i].velocity);
+	}
 }
 
 void drawParticles(ParticleSpawner* spawner)

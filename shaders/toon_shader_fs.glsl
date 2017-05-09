@@ -13,6 +13,7 @@ uniform float lightIntensities[8];
 uniform vec3 lightDirections[8];
 uniform vec3 lightColors[8];
 uniform float lightRanges[8];
+uniform vec4 objectColor;
 uniform sampler2D theTexture;
 
 vec3 directionToLights[8];
@@ -22,7 +23,7 @@ void main()
 	if (baseColor == 0)
 	{
 		vec3 lightDir = normalize(vec3(lightPosition) - fragmentPosition);
-		vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
+		vec3 lightColor = vec3(0.5f, 0.5f, 0.5f);
 		float ambientIntensity = 0.3f;
 		vec3 ambientColor =  lightColor * ambientIntensity;
 
@@ -35,47 +36,42 @@ void main()
 		for (int i = 0; i < numLights; i++)
 		{
 			directionToLights[i] = normalize(vec3(lightPositions[i]) - fragmentPosition);
-			lightDot = dot(lightDirections[i], directionToLights[i]);
+			lightDot = dot(normalize(lightDirections[i]), directionToLights[i]);
 
 			if (lightDot <= -lightRanges[i])
 			{
+			//vec4 diffuseColor = lightColor * diffuseIntensity * lightStrength;
 			//Diffuse Intensity = max(0.0f, dot(normal, directionToLights[lightIndex]));
+
 				diffuseColor += lightColors[i] * max(0.0f, dot(normal, directionToLights[i])) * lightIntensities[i];
 				diffuseIntensity += max(0.0f, dot(normal, directionToLights[i]));
 			}
 		}
-		
-		if (diffuseIntensity > 0.95)
+		 
+		if (diffuseIntensity >= 0.95f)
 		{
-			diffuseColor.x = max(step(0.8f, diffuseColor.x), diffuseColor.x);
-			diffuseColor.y = max(step(0.8f, diffuseColor.y), diffuseColor.y);
-			diffuseColor.z = max(step(0.8f, diffuseColor.z), diffuseColor.z);
+			diffuseColor = vec3(0.85f, 0.85f, 0.85f);
 		}
-		else if (diffuseIntensity > 0.5)
+		else if (diffuseIntensity >= 0.65f)
 		{
-			diffuseColor.x = max(step(0.5f, diffuseColor.x) * 0.8f, diffuseColor.x);
-			diffuseColor.y = max(step(0.5f, diffuseColor.y) * 0.8f, diffuseColor.y);
-			diffuseColor.z = max(step(0.5f, diffuseColor.z) * 0.8f, diffuseColor.z);
+			diffuseColor = vec3(0.55f, 0.55f, 0.55f);
 		}
-		else if (diffuseIntensity > 0.25)
+		else if (diffuseIntensity >= 0.35f)
 		{
-			//diffuseColor = vec3(0.6, 0.6, 0.6);
-			diffuseColor.x = max(step(0.3f, diffuseColor.x) * 0.6f, diffuseColor.x);
-			diffuseColor.y = max(step(0.3f, diffuseColor.y) * 0.6f, diffuseColor.y);
-			diffuseColor.z = max(step(0.3f, diffuseColor.z) * 0.6f, diffuseColor.z);
+			diffuseColor = vec3(0.25f, 0.25f, 0.25f);
 		}
-		else
+		else 
 		{
-			diffuseColor.x = 0.0f;
-			diffuseColor.y = 0.0f;
-			diffuseColor.z = 0.0f;
+			diffuseColor = vec3(0.0f, 0.0f, 0.0f);
 		}
-		outputColor = vec4(ambientColor + diffuseColor, 1.0f) * texture(theTexture, textureCoords); 
-
+		float step1 = step(0.95f, diffuseIntensity);
+		float diffValue = (step1 * 0.85) + (step(0.45f, diffuseIntensity) - step1) * 0.45f;
+		diffuseColor = vec3(diffValue, diffValue, diffValue);
+		outputColor = vec4(ambientColor + diffuseColor, 1.0f) * texture(theTexture, textureCoords);
 	}
 	else
 	{
-		outputColor= texture(theTexture, textureCoords);
+		outputColor = objectColor;
 	}
 
 	

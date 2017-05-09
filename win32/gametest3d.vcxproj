@@ -21,6 +21,7 @@
     <ClCompile Include="..\src\mesh.c" />
     <ClCompile Include="..\src\model.c" />
     <ClCompile Include="..\src\player.c" />
+    <ClCompile Include="..\src\projectile.c" />
     <ClCompile Include="..\src\resource_manager.c" />
     <ClCompile Include="..\src\shader.c" />
     <ClCompile Include="..\src\simple_logger.c" />
@@ -33,6 +34,7 @@
     <ClInclude Include="..\include\graphics3d.h" />
     <ClInclude Include="..\include\light.h" />
     <ClInclude Include="..\include\particle_spawner.h" />
+    <ClInclude Include="..\include\projectile.h" />
     <ClInclude Include="..\include\user_interface.h" />
     <ClInclude Include="..\include\mesh.h" />
     <ClInclude Include="..\include\model.h" />

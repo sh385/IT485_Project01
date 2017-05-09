@@ -66,6 +66,18 @@ void touch(Entity* ent, Entity* ent2)
 	}*/
 }
 
+bool entityInUse(Entity* entity)
+{
+	if (entity)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool colliding(Collider col, Collider col2)
 {
 	return (col.minX < col2.maxX && col.maxX > col2.minX &&
@@ -94,8 +106,6 @@ void updateMatrix(Entity* ent)
 
 void moveEntity(Entity* entity, glm::vec3 offset)
 {
-	
-
 	entity->position.x += offset.x;
 	entity->position.y += offset.y;
 	entity->position.z += offset.z;
@@ -126,8 +136,10 @@ Entity* createEntity()
 	entity->position = glm::vec3(0.0f, 0.0f, 0.0f);
 	entity->onGround = false;
 	entity->forward = glm::vec3(0.0f, 0.0f, 1.0f);
-	entity->forward = glm::vec3(1.0f, 0.0f, 1.0f);
+	entity->right = glm::vec3(1.0f, 0.0f, 0.0f);
+	entity->up = glm::vec3(0.0f, 1.0f, 0.0f);
 	entity->modelMatrix = glm::mat4();
+	entity->color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	return entity;
 }
 

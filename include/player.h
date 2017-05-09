@@ -1,5 +1,6 @@
 #pragma once
 #include "entity.h"
+#include "projectile.h"
 
 typedef struct
 {
@@ -11,6 +12,12 @@ typedef struct
 	bool attackBoxActive;
 	GLint attackBoxTime;
 	bool hidden;
+	GLuint currentWeapon;
+	Projectile* projectiles;
+	GLuint numProjectiles;
+	GLuint maxProjectiles;
+	GLint shotCounter;
+	GLint maxShotCount;
 }Player;
 
 Player* createPlayer();

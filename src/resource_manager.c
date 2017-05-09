@@ -5,9 +5,27 @@ ResourceManager* createScene()
 {
 	ResourceManager* manager = (ResourceManager*)malloc(sizeof(ResourceManager));
 	manager->numEntities = 0;
+	manager->maxEntities = 50;
+	manager->entityList = (Entity**)malloc(sizeof(Entity)*manager->maxEntities);
+	memset(manager->entityList, 0, sizeof(Entity)*manager->maxEntities);
 	manager->numLights = 0;
-
+	manager->maxLights = 10;
+	manager->lights = (Light**)malloc(sizeof(Light)*manager->maxLights);
+	memset(manager->lights, 0, sizeof(Light)*manager->maxLights);
+	manager->numEnemies = 0;
 	return manager;
+}
+
+bool lightInUse(Light* light)
+{
+	if (light)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void createFramebuffer(ResourceManager* manager)
@@ -21,7 +39,7 @@ void createFramebuffer(ResourceManager* manager)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
+
 
 	glGenRenderbuffers(1, &manager->rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, manager->rbo);
@@ -29,11 +47,11 @@ void createFramebuffer(ResourceManager* manager)
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	glGenFramebuffers(1, &manager->fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, manager->fbo);	
+	glBindFramebuffer(GL_FRAMEBUFFER, manager->fbo);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, manager->frameTexture, 0);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, manager->rbo);
-	
+
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		printf("Incomplete Framebuffer!");
@@ -62,6 +80,7 @@ void loadScene(ResourceManager* manager, char* path)
 			Entity* ent = createEntity();
 			ent->model = loadModel(buf);
 			fscanf(manager->file, "%f/%f/%f", &x, &y, &z);
+			fscanf(manager->file, "%f/%f/%f", &ent->color.x, &ent->color.y, &ent->color.z);
 			for (GLuint i = 0; i < ent->model->numMeshes; i++)
 			{
 				fscanf(manager->file, "%s", buf);
@@ -74,6 +93,7 @@ void loadScene(ResourceManager* manager, char* path)
 				addEntity(manager, manager->player->attackBox);
 				manager->player->gameObject = ent;
 				manager->player->gameObject->name = "Player";
+				manager->player->gameObject->health = 100;
 				moveEntity(manager->player->gameObject, glm::vec3(x, y, z));
 				moveEntity(manager->player->attackBox, manager->player->gameObject->position);
 			}
@@ -83,12 +103,23 @@ void loadScene(ResourceManager* manager, char* path)
 				moveEntity(ent, glm::vec3(x, y, z));
 				addEntity(manager, ent);
 			}
-			else
+			else if (strcmp(buf, "Goal") == 0)
 			{
-				ent->name = "X-Ray";
+				ent->name = "Goal";
 				moveEntity(ent, glm::vec3(x, y, z));
 				addEntity(manager, ent);
 			}
+			else
+			{
+				AI* ai = createAI(10.0f);
+				ent->name = "AI";
+				ai->gameObject = ent;
+				ai->gameObject->health = 50;
+				moveEntity(ai->gameObject, glm::vec3(x, y, z));
+				addEntity(manager, ai->gameObject);
+				manager->numEnemies++;
+			}
+
 		}
 		else if (strcmp(buf, "Light:") == 0)
 		{
@@ -114,7 +145,7 @@ void loadScene(ResourceManager* manager, char* path)
 
 void addEntity(ResourceManager* manager, Entity* ent)
 {
-	manager->numEntities++;
+	/*manager->numEntities++;
 	if (manager->numEntities == 1)
 	{
 		manager->entityList = (Entity**)malloc(sizeof(Entity));
@@ -123,12 +154,21 @@ void addEntity(ResourceManager* manager, Entity* ent)
 	{
 		manager->entityList = (Entity**)realloc(manager->entityList, sizeof(Entity)*manager->numEntities);
 	}
-	manager->entityList[manager->numEntities - 1] = ent;
+	manager->entityList[manager->numEntities - 1] = ent;*/
+	for (GLuint i = 0; i < manager->maxEntities; i++)
+	{
+		if (entityInUse(manager->entityList[i]) == false)
+		{
+			manager->entityList[i] = ent;
+			manager->numEntities++;
+			break;
+		}
+	}
 }
 
 void addLight(ResourceManager* manager, Light* light)
 {
-	manager->numLights++;
+	/*manager->numLights++;
 	if (manager->numLights == 1)
 	{
 		manager->lights = (Light**)malloc(sizeof(Light));
@@ -137,7 +177,16 @@ void addLight(ResourceManager* manager, Light* light)
 	{
 		manager->lights = (Light**)realloc(manager->lights, sizeof(Light)*manager->numLights);
 	}
-	manager->lights[manager->numLights - 1] = light;
+	manager->lights[manager->numLights - 1] = light;*/
+	for (GLuint i = 0; i < manager->maxLights; i++)
+	{
+		if (lightInUse(manager->lights[i]) == false)
+		{
+			manager->lights[i] = light;
+			manager->numLights++;
+			break;
+		}
+	}
 }
 
 void initScene(ResourceManager* manager)
@@ -151,7 +200,7 @@ void initScene(ResourceManager* manager)
 		initEntity(manager->lights[i]->gameObject);
 	}
 	initEntity(manager->player->gameObject);
-	
+
 }
 
 void updateScene(ResourceManager* manager)
@@ -160,16 +209,74 @@ void updateScene(ResourceManager* manager)
 	updatePlayer(manager->player);
 	for (GLuint i = 0; i < manager->numEntities; i++)
 	{
+		if (entityInUse(manager->entityList[i]) == false)
+		{
+			continue;
+		}
+
+		if (strcmp(manager->entityList[i]->name, "Goal") == 0)
+		{
+			if (colliding(manager->entityList[i]->model->collider, manager->player->gameObject->model->collider))
+			{
+				printf("You Win!");
+			}
+		}
 		updateEntity(manager->entityList[i]);
-		if (manager->entityList[i] != manager->player->attackBox)
+		if (manager->entityList[i] != manager->player->attackBox && strcmp(manager->entityList[i]->name, "Projectile") != 0)
 		{
 			movePlayer(manager->player, manager->entityList[i]);
 
 			if (strcmp(manager->entityList[i]->name, "AI") == 0)
 			{
-				if (colliding(manager->player->attackBox->model->collider, manager->entityList[i]->model->collider))
+				if (manager->player->attackBoxActive == true && colliding(manager->player->attackBox->model->collider, manager->entityList[i]->model->collider))
 				{
-					printf("Colliding");
+					printf("colliding");
+					manager->entityList[i]->health -= 10;
+					if (manager->entityList[i]->health <= 0)
+					{
+						freeEntity(&manager->entityList[i]);
+						manager->numEntities--;
+						manager->numEnemies--;
+						continue;
+					}
+				}
+				if (glm::abs(manager->player->gameObject->position.x - manager->entityList[i]->position.x) <= 20
+					&& glm::abs(manager->player->gameObject->position.z - manager->entityList[i]->position.z) <= 20
+					&& manager->player->hidden == false)
+				{
+					follow(manager->entityList[i], manager->player->gameObject->position);
+				}
+				if (glm::abs(manager->player->gameObject->position.x - manager->entityList[i]->position.x) <= 10
+					&& glm::abs(manager->player->gameObject->position.z - manager->entityList[i]->position.z) <= 10
+					&& manager->player->hidden == false)
+				{
+					manager->player->gameObject->health -= 15;
+				}
+
+			}
+
+			if (manager->player->numProjectiles != 0)
+			{
+				for (GLuint j = 0; j < manager->player->numProjectiles; j++)
+				{
+					if (manager->player->projectiles[j].active == true)
+					{
+						manager->player->projectiles[j].active = false;
+						addEntity(manager, manager->player->projectiles[j].gameObject);
+						initEntity(manager->player->projectiles[j].gameObject);
+					}
+					else
+					{
+						moveEntity(manager->player->projectiles[j].gameObject, manager->player->projectiles[j].gameObject->velocity);
+						//manager->player->projectiles[j].gameObject->velocity.y -= 0.001f;
+						if (colliding(manager->player->projectiles[j].gameObject->model->collider,
+							manager->entityList[i]->model->collider) && strcmp(manager->entityList[i]->name, "AI") == 0)
+						{
+							freeEntity(&manager->entityList[i]);
+							manager->numEntities--;
+						}
+
+					}
 				}
 			}
 		}
@@ -184,9 +291,15 @@ void updateScene(ResourceManager* manager)
 			manager->player->hidden = false;
 		}
 	}
+
+	/*for (GLuint i = 0; i < manager->numSpawners; i++)
+	{
+
+		updateParticles(&manager->spawner[i]);
+	}*/
 	if (manager->player->hidden == true)
 	{
-		printf("Player is hidden");
+		//printf("Player is hidden");
 	}
 }
 
@@ -197,11 +310,13 @@ void renderToonScene(ResourceManager* manager)
 	drawEntity(manager->player->gameObject);*/
 	for (GLuint i = 0; i < manager->numEntities; i++)
 	{
-		if (manager->entityList[i] != manager->player->attackBox || 
-			(manager->entityList[i] == manager->player->attackBox && manager->player->attackBoxActive))
+		if (manager->entityList[i] != manager->player->attackBox && entityInUse(manager->entityList[i]))
 		{
 			GLint uniLocation = glGetUniformLocation(get_toon_shader(), "modelMatrix");
 			glUniformMatrix4fv(uniLocation, 1, GL_FALSE, glm::value_ptr(manager->entityList[i]->modelMatrix));
+
+			GLint uniColor = glGetUniformLocation(get_toon_shader(), "objectColor");
+			glUniform4fv(uniColor, 1, (const GLfloat*)&manager->entityList[i]->color);
 			drawEntity(manager->entityList[i]);
 		}
 	}
@@ -215,11 +330,14 @@ void renderScene(ResourceManager* manager)
 	//drawEntity(manager->player->gameObject);
 	for (GLuint i = 0; i < manager->numEntities; i++)
 	{
-		if (manager->entityList[i] != manager->player->attackBox ||
-			(manager->entityList[i] == manager->player->attackBox && manager->player->attackBoxActive))
+		if (manager->entityList[i] != manager->player->attackBox && entityInUse(manager->entityList[i]))
 		{
 			GLint uniLocation = glGetUniformLocation(get_phong_shader(), "modelMatrix");
 			glUniformMatrix4fv(uniLocation, 1, GL_FALSE, glm::value_ptr(manager->entityList[i]->modelMatrix));
+
+			GLint uniColor = glGetUniformLocation(get_phong_shader(), "objectColor");
+			glUniform4fv(uniColor, 1, (const GLfloat*)&manager->entityList[i]->color);
+
 			drawEntity(manager->entityList[i]);
 		}
 	}
@@ -232,6 +350,7 @@ void renderLights(ResourceManager* manager, GLuint shader)
 	{
 		GLint uniLocation = glGetUniformLocation(shader, "modelMatrix");
 		glUniformMatrix4fv(uniLocation, 1, GL_FALSE, glm::value_ptr(manager->lights[i]->gameObject->modelMatrix));
+
 		drawEntity(manager->lights[i]->gameObject);
 	}
 }
@@ -240,14 +359,17 @@ void renderXrayScene(ResourceManager* manager)
 {
 	for (GLuint i = 0; i < manager->numEntities; i++)
 	{
-		if (manager->entityList[i]->name == "X-Ray")
+		if (entityInUse(manager->entityList[i]) == false)
+		{
+			continue;
+		}
+		if (manager->entityList[i]->name == "AI")
 		{
 			GLint uniLocation = glGetUniformLocation(get_xray_shader(), "modelMatrix");
 			glUniformMatrix4fv(uniLocation, 1, GL_FALSE, glm::value_ptr(manager->entityList[i]->modelMatrix));
 			drawEntity(manager->entityList[i]);
 		}
 	}
-	drawEntity(manager->player->gameObject);
 }
 
 void renderPostProcessEffects(ResourceManager* manager)

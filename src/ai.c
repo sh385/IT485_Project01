@@ -46,34 +46,37 @@ NavMesh* createNavmesh(char* filePath)
 	return navmesh;
 }
 
-AI* createAI(NavMesh* navmesh, GLfloat lookDistance)
+AI* createAI(GLfloat lookDistance)
 {
 	AI* ai = (AI*)malloc(sizeof(AI));
-	ai->navmesh = navmesh;
 	ai->pathSize = 0;
 	ai->lookDistance = lookDistance;
 	return ai;
 }
 
-void follow(AI* ai, glm::vec3 target)
+void follow(Entity* ai, glm::vec3 target)
 {
-	if (ai->gameObject->position.x > target.x)
+	GLfloat angle = glm::acos(glm::dot(glm::normalize(ai->forward), glm::normalize(target - ai->position)));
+	moveEntity(ai, glm::normalize(target - ai->position) * 0.02f);
+	ai->modelMatrix = glm::rotate(ai->modelMatrix, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	/*if (ai->position.x > target.x)
 	{
-		moveEntity(ai->gameObject, glm::vec3(-0.06f, 0.0f, 0.0f));
+		moveEntity(ai, glm::vec3(-0.04f, 0.0f, 0.0f));
 	}
-	else if (ai->gameObject->position.x < target.x)
+	else if (ai->position.x < target.x)
 	{
-		moveEntity(ai->gameObject, glm::vec3(0.06, 0.0f, 0.0f));
+		moveEntity(ai, glm::vec3(0.04, 0.0f, 0.0f));
 	}
 
-	if (ai->gameObject->position.z > target.z)
+	if (ai->position.z > target.z)
 	{
-		moveEntity(ai->gameObject, glm::vec3(0.0f, 0.0f, -0.06f));
+		moveEntity(ai, glm::vec3(0.0f, 0.0f, -0.04f));
 	}
-	else if (ai->gameObject->position.z < target.z)
+	else if (ai->position.z < target.z)
 	{
-		moveEntity(ai->gameObject, glm::vec3(0.0f, 0.0f, 0.06f));
-	}
+		moveEntity(ai, glm::vec3(0.0f, 0.0f, 0.04f));
+	}*/
 }
 
 NavNode getNodeAt(NavMesh* navmesh, glm::vec3 position)

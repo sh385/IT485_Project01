@@ -13,6 +13,8 @@ typedef struct
 	glm::vec4 lastPosition;
 	bool onGround;
 	char* name;
+	GLint health;
+	glm::vec4 color;
 }Entity;
 
 Entity* createEntity();
@@ -26,4 +28,5 @@ void updateMatrix(Entity* ent);
 void updateCollider(Entity* ent, glm::vec3 velocity);
 bool colliding(Collider col, Collider col2);
 void freeEntity(Entity** entity);
+bool entityInUse(Entity* entity);
 

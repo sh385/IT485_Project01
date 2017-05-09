@@ -4,23 +4,30 @@
 #include "entity.h"
 #include "player.h"
 #include "light.h"
+#include "ai.h"
+#include "particle_spawner.h"
 
 typedef struct
 {
 	Player* player;
 	Entity** entityList;
 	Light** lights;
-	GLuint numEntities;
-	GLuint numLights;
+	GLuint numEntities, maxEntities;
+	GLuint numLights, maxLights;
 	FILE* file;
 	GLuint fbo;
 	GLuint rbo;
 	GLuint quadvao;
 	GLuint quadvbo;
 	GLuint frameTexture;
+	ParticleSpawner* spawner;
+	GLuint numSpawners;
+	GLint numEnemies;
 }ResourceManager;
 
 ResourceManager* createScene();
+bool lightInUse(Light* light);
+bool entityInUse(Entity* entity);
 void createFramebuffer(ResourceManager* manager);
 void initScene(ResourceManager* manager);
 void updateScene(ResourceManager* manager);

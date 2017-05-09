@@ -1,7 +1,11 @@
 #include "player.h"
+
 Player* createPlayer()
 {
 	Player* player = (Player*)malloc(sizeof(Player));
+	player->maxProjectiles = 20;
+	player->projectiles = (Projectile*)malloc(sizeof(Projectile) * player->maxProjectiles);
+	memset(player->projectiles, 0, sizeof(Projectile) * player->maxProjectiles);
 	player->gravity = 0.01f;
 	player->attackBox = createEntity();
 	player->attackBox->name = "AttackBox";
@@ -10,12 +14,20 @@ Player* createPlayer()
 	player->attackBoxActive = false;
 	player->attackBoxTime = 0;
 	player->hidden = true;
+	player->currentWeapon = 0;
+	player->numProjectiles = 0;
+	player->shotCounter = 0;
+	player->maxShotCount = 10;
 	return player;
 }
 
 void updatePlayer(Player* player)
 {
+	GLint mouseX, mouseY;
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
+	Uint8 mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
+	player->shotCounter++;
+
 	if (keystate[SDL_SCANCODE_SPACE] && player->gameObject->onGround)
 	{
 		player->gameObject->velocity.y = 0.2f;
@@ -23,11 +35,11 @@ void updatePlayer(Player* player)
 	}
 	if (keystate[SDL_SCANCODE_W])
 	{
-		player->gameObject->velocity.z = 0.05f;
+		player->gameObject->velocity.z = 0.01f;
 	}
 	else if (keystate[SDL_SCANCODE_S])
 	{
-		player->gameObject->velocity.z = -0.05f;
+		player->gameObject->velocity.z = -0.01f;
 	}
 	else
 	{
@@ -36,20 +48,46 @@ void updatePlayer(Player* player)
 
 	if (keystate[SDL_SCANCODE_A])
 	{
-		player->gameObject->velocity.x = -0.05f;
+		player->gameObject->velocity.x = -0.01f;
 	}
 	else if (keystate[SDL_SCANCODE_D])
 	{
-		player->gameObject->velocity.x = 0.05f;
+		player->gameObject->velocity.x = 0.01f;
 	}
 	else
 	{
 		player->gameObject->velocity.x = 0.0f;
 	}
 
-	if (keystate[SDL_SCANCODE_H] && !player->attackBoxActive)
+	if (keystate[SDL_SCANCODE_0] && player->currentWeapon != 0)
 	{
-		player->attackBoxActive = true;
+		player->currentWeapon = 0;
+	}
+	else if (keystate[SDL_SCANCODE_1] && player->currentWeapon != 1)
+	{
+		player->currentWeapon = 1;
+	}
+
+	if ((SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState))
+	{
+		if (player->currentWeapon == 0 && !player->attackBoxActive)
+		{
+			player->attackBoxActive = true;
+		}
+		else if (player->currentWeapon == 1 && player->shotCounter >= player->maxShotCount)
+		{
+			if (player->numProjectiles < player->maxProjectiles)
+			{
+				Projectile* proj = createProjectile(glm::normalize(player->gameObject->forward) * 0.3f);
+				proj->gameObject->model = loadModel("C:/Users/sharg_000/Documents/3D_Modeling_Projects/smallCube.obj");
+				loadTexture(&proj->gameObject->model->meshes[0], "C:/Users/sharg_000/Documents/blueTexture.png");
+				moveEntity(proj->gameObject, player->gameObject->position + glm::normalize(player->gameObject->forward) * 1.2f);
+				proj->active = true;
+				player->projectiles[player->numProjectiles] = *proj;
+				player->numProjectiles++;
+			}
+			player->shotCounter = 0;
+		}
 	}
 	
 	if (player->attackBoxActive == true)

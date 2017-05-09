@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <string>
 
 typedef struct
 {

@@ -42,7 +42,7 @@ void main()
 	//float specIntensity = 0.7f;
 	//vec3 specColor = specIntensity * lightColor  * pow(dot(reflect(normal, lightDir), towardsCam), 32);
 
-	//outputColor = vec4(ambientColor + diffuseColor, 1.0f) * texture(theTexture, textureCoords);
-	outputColor = texture(theTexture, textureCoords);
+	outputColor = vec4(ambientColor + diffuseColor, 1.0f) * texture(theTexture, textureCoords);
+	//outputColor = texture(theTexture, textureCoords);
 }
 

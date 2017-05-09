@@ -129,7 +129,11 @@ void drawUI(UICanvas* canvas)
 		//{
 		glColor4f(canvas->uiElements[i].textColor.x, canvas->uiElements[i].textColor.y, canvas->uiElements[i].textColor.z, canvas->uiElements[i].textColor.w);
 		glWindowPos2f(canvas->uiElements[i].position.x, canvas->uiElements[i].position.y);
+		
+		//for (GLuint c = 0; c < canvas->uiElements[i].text.length(); c++)
+		//{
 		glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*)canvas->uiElements[i].text);
+		//}
 		//}
 	}
 	glBindVertexArray(0);
